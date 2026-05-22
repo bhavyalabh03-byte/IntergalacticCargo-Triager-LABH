@@ -3,238 +3,556 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intergalactic Cargo Triager Dashboard</title>
+    <title>✦ DEEP COSMIC MANIFEST TRIAGER v4.18 ✦</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --panel-color: #161f30;
-            --accent-color: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.5);
-            --earth-color: #10b981;
-            --earth-glow: rgba(16, 185, 129, 0.3);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
+            --bg-cosmic: #020208;
+            --nebula-glow: radial-gradient(circle at 80% 20%, #1e1b4b 0%, #090514 40%, #020208 100%);
+            --glass-panel: rgba(11, 10, 26, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.04);
+            --stardust-cyan: #22d3ee;
+            --stardust-glow: rgba(34, 211, 238, 0.2);
+            --earth-emerald: #34d399;
+            --earth-glow: rgba(52, 211, 153, 0.15);
+            --nova-amber: #fbbf24;
+            --text-stellar: #f1f5f9;
+            --text-cosmic-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
+            background-color: var(--bg-cosmic);
+            background-image: var(--nebula-glow);
+            color: var(--text-stellar);
+            font-family: 'Space Grotesk', sans-serif;
+            padding: 3rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #starfield-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .workspace {
+            width: 100%;
+            max-width: 1300px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .sidebar {
+            background: var(--glass-panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
             padding: 2rem;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            gap: 1.5rem;
+            height: fit-content;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
 
-        header {
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 2.2rem;
+        .brand-panel h1 {
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--accent-glow);
             margin-bottom: 0.5rem;
         }
 
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 1rem;
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--stardust-cyan);
+            background: rgba(34, 211, 238, 0.08);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid rgba(34, 211, 238, 0.15);
+            font-family: 'Share Tech Mono', monospace;
         }
 
-        .controls {
-            margin-bottom: 2rem;
+        .pulse-indicator {
+            width: 6px;
+            height: 6px;
+            background-color: var(--stardust-cyan);
+            border-radius: 50%;
+            animation: cosmicBeacon 2s infinite ease-in-out;
+        }
+
+        @keyframes cosmicBeacon {
+            0%, 100% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        .sys-info {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-cosmic-muted);
+            line-height: 1.8;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .sys-info strong {
+            color: var(--text-stellar);
+        }
+
+        .terminal-logs {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 0.75rem;
+            height: 110px;
+            overflow-y: hidden;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: #67e8f9;
+            line-height: 1.4;
         }
 
         button {
-            background-color: transparent;
-            color: var(--text-main);
-            border: 2px solid var(--accent-color);
-            padding: 0.75rem 2rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 6px;
+            width: 100%;
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(34, 211, 238, 0.02) 100%);
+            color: var(--stardust-cyan);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            padding: 1rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
             cursor: pointer;
+            border-radius: 10px;
             transition: all 0.3s ease;
-            box-shadow: 0 0 15px var(--accent-glow);
         }
 
         button:hover:not(:disabled) {
-            background-color: var(--accent-color);
-            box-shadow: 0 0 25px var(--accent-color);
-            transform: translateY(-2px);
+            background: var(--stardust-cyan);
+            color: var(--bg-cosmic);
+            box-shadow: 0 0 25px var(--stardust-glow);
         }
 
         button:disabled {
-            border-color: var(--text-muted);
-            color: var(--text-muted);
-            box-shadow: none;
+            border-color: var(--nova-amber);
+            color: var(--nova-amber);
+            background: rgba(251, 191, 36, 0.04);
             cursor: not-allowed;
-            opacity: 0.6;
+        }
+
+        .main-display {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .telemetry-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        .telemetry-card {
+            background: var(--glass-panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .tel-label {
+            font-size: 0.75rem;
+            color: var(--text-cosmic-muted);
+            text-transform: uppercase;
+        }
+
+        .tel-val {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 0.25rem;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
         }
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1max));
-            gap: 1.5rem;
-            width: 100%;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.25rem;
         }
 
         .card {
-            background-color: var(--panel-color);
-            border-left: 4px solid var(--accent-color);
-            border-radius: 8px;
+            background: var(--glass-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
             padding: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            transition: transform 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 215px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .card:hover {
-            transform: scale(1.02);
+            transform: translateY(-5px);
+            border-color: rgba(34, 211, 238, 0.25);
         }
 
-        /* Business Rule 4 Style Override: Visual highlight for the pinned Earth container */
         .card.earth-pinned {
-            border-left-color: var(--earth-color);
-            box-shadow: 0 4px 20px var(--earth-glow);
-            background: linear-gradient(135deg, var(--panel-color) 0%, #112920 100%);
+            background: linear-gradient(135deg, var(--glass-panel) 0%, rgba(52, 211, 153, 0.03) 100%);
+            border-color: rgba(52, 211, 153, 0.12);
         }
 
-        .card-header {
+        .card.earth-pinned:hover {
+            border-color: var(--earth-emerald);
+        }
+
+        .card-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-cosmic-muted);
+            font-weight: 600;
+            font-family: 'Share Tech Mono', monospace;
         }
 
         .cargo-id {
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-            font-size: 1.2rem;
             color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 700;
         }
 
-        .date {
-            font-size: 0.85rem;
-            color: var(--text-muted);
+        .type-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-cosmic-muted);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .metric {
-            margin: 0.5rem 0;
-            font-size: 1.05rem;
+        .dest-profile {
+            margin-top: 0.75rem;
         }
 
-        .label {
-            color: var(--text-muted);
-            font-size: 0.85rem;
+        .dest-label {
+            font-size: 0.75rem;
             text-transform: uppercase;
+            color: var(--text-cosmic-muted);
+            letter-spacing: 0.5px;
             display: block;
-            margin-bottom: 0.1rem;
+            margin-bottom: 0.2rem;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
-        .value {
-            font-weight: 500;
-        }
-
-        .weight-val {
-            font-size: 1.4rem;
+        /* NEW HIGHLIGHT EFFECT: Cyber-tech font implementation applied directly to headers and names */
+        .dest-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
             color: #ffffff;
-            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .mass-meter {
+            margin-top: auto;
+        }
+
+        .mass-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 0.4rem;
+        }
+
+        .weight-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .weight-unit {
+            font-size: 0.75rem;
+            color: var(--text-cosmic-muted);
+            margin-left: 2px;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #06b6d4, var(--stardust-cyan));
+            border-radius: 2px;
+        }
+
+        .card.earth-pinned .progress-bar {
+            background: linear-gradient(90deg, #10b981, var(--earth-emerald));
+        }
+
+        .earth-badge-text {
+            color: var(--earth-emerald);
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-family: 'Share Tech Mono', monospace;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Intergalactic Cargo Triager</h1>
-        <div class="subtitle">Quantum Manifest Tracking Station // Operator: LABH</div>
-    </header>
+    <canvas id="starfield-canvas"></canvas>
 
-    <div class="controls">
-        <button id="sync-btn" onclick="triggerQuantumSync()">Sync Data</button>
+    <div class="workspace">
+        <aside class="sidebar">
+            <div class="brand-panel">
+                <h1>Cosmic Desk</h1>
+                <div class="badge">
+                    <div class="pulse-indicator"></div>
+                    <span>ORBITAL LINK ACTIVE</span>
+                </div>
+            </div>
+
+            <div class="sys-info">
+                <strong>STATION:</strong> LABH_COSMIC_DECK<br>
+                <strong>GATEWAY:</strong> 127.0.0.1:8000<br>
+                <strong>ENGINE:</strong> FASTAPI / HTML5<br>
+                <strong>ROUTER:</strong> PREVENT_OVERRIDE_V2
+            </div>
+
+            <div class="terminal-logs" id="log-feed">
+                [SYSTEM] Initializing stream...
+            </div>
+
+            <button id="sync-btn" onclick="triggerQuantumSync()">Sync Manifest</button>
+        </aside>
+
+        <main class="main-display">
+            <div class="telemetry-row">
+                <div class="telemetry-card" style="border-left: 3px solid var(--stardust-cyan);">
+                    <div class="tel-label">Total Cargo Fleet Weight</div>
+                    <div class="tel-val" id="tel-mass">0 KG</div>
+                </div>
+                <div class="telemetry-card" style="border-left: 3px solid var(--nova-amber);">
+                    <div class="tel-label">Mapped Destination Vectors</div>
+                    <div class="tel-val" id="tel-sectors">0</div>
+                </div>
+                <div class="telemetry-card" style="border-left: 3px solid var(--earth-emerald);">
+                    <div class="tel-label">Deep Scan Integrity</div>
+                    <div class="tel-val" style="color: var(--earth-emerald); font-size:0.85rem; margin-top:0.5rem; font-family:'Orbitron', sans-serif;">100% SECURE</div>
+                </div>
+            </div>
+
+            <div id="manifest-grid"></div>
+        </main>
     </div>
-
-    <div class="grid-container" id="manifest-grid">
-        </div>
 
     <script>
         const API_URL = "/api/cargo";
+
+        // --- STARFIELD BACKGROUND ---
+        const canvas = document.getElementById('starfield-canvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const starCount = Math.floor((canvas.width * canvas.height) / 4000);
+            for(let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5,
+                    opacity: Math.random(),
+                    speed: 0.15 + Math.random() * 0.3
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffffff';
+            stars.forEach(star => {
+                ctx.globalAlpha = star.opacity;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+                star.y += star.speed;
+                if(star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+            requestAnimationFrame(animateStars);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animateStars();
+
+        // --- AUTOMATED LOG TICKER ---
+        const logMessages = [
+            "Syncing telemetry thrusters...",
+            "Deep scanning cargo containment arrays...",
+            "Re-calculating hyper-jump trajectories...",
+            "Refreshing secure connection gateway...",
+            "Evaluating routing override flags..."
+        ];
+        function addLiveLog(text) {
+            const feed = document.getElementById("log-feed");
+            const time = new Date().toLocaleTimeString();
+            feed.innerHTML += `<br>[${time}] ${text}`;
+            feed.scrollTop = feed.scrollHeight;
+        }
+        setInterval(() => {
+            const randomMsg = logMessages[Math.floor(Math.random() * logMessages.length)];
+            addLiveLog(randomMsg);
+        }, 4000);
+
+        // --- SOUND EFFECTS ---
+        function playCosmicPing(freq, duration) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
 
         async function fetchAndRenderManifest() {
             const grid = document.getElementById("manifest-grid");
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error("Manifest download down.");
+                if (!response.ok) throw new Error("LINK_DISRUPTED");
                 const data = await response.json();
 
-                // --- BUSINESS RULE 4: SORTING LOGIC ---
+                const totalMass = data.reduce((sum, i) => sum + i.weight_in_kg, 0);
+                const uniqueDestinations = new Set(data.map(i => i.destination.trim())).size;
+                
+                document.getElementById("tel-mass").innerText = `${totalMass.toLocaleString()} KG`;
+                document.getElementById("tel-sectors").innerText = uniqueDestinations;
+
+                // --- BUSINESS RULE 4: ALGORITHM ---
                 data.sort((a, b) => {
                     const destA = a.destination.toLowerCase().trim();
                     const destB = b.destination.toLowerCase().trim();
-
-                    // If one of them is destined for Earth, systematically pin it lower
                     if (destA === "earth" && destB !== "earth") return 1;
-                    if (destB === "earth" && destA !== "earth") return -1;
-
-                    // Otherwise, sort descending by absolute mass parameters (Heaviest -> Lightest)
+                    if (destB === "earth" && destA!== "earth") return -1;
                     return b.weight_in_kg - a.weight_in_kg;
                 });
 
-                // Clear the container elements
-                grid.innerHTML = "";
+                grid.innerHTML = '<div class="grid-container" id="card-inner-grid"></div>';
+                const innerGrid = document.getElementById("card-inner-grid");
+                const maxWeight = Math.max(...data.map(i => i.weight_in_kg), 10000);
 
-                // Generate and append cards
                 data.forEach(item => {
                     const isEarth = item.destination.toLowerCase().trim() === "earth";
+                    const percentage = (item.weight_in_kg / maxWeight) * 100;
+                    
+                    let tagType = "🪐 SYSTEM_ORBIT";
+                    if (isEarth) tagType = "🌍 HOME_VECTOR";
+                    else if (item.destination.match(/Pluto|Asteroid|Neptune/i)) tagType = "🛰️ DEEP_SPACE";
+
                     const card = document.createElement("div");
                     card.className = `card ${isEarth ? 'earth-pinned' : ''}`;
 
                     card.innerHTML = `
-                        <div class="card-header">
-                            <span class="cargo-id">${item.cargo_id}</span>
-                            <span class="date">${item.date}</span>
+                        <div class="card-meta">
+                            <span class="cargo-id">✦ ${item.cargo_id}</span>
+                            <span class="type-badge">${tagType}</span>
                         </div>
-                        <div class="metric">
-                            <span class="label">Destination Vector</span>
-                            <span class="value">${item.destination} ${isEarth ? '🌍 (Pinned)' : ''}</span>
+                        <div class="dest-profile">
+                            <span class="dest-label">Destination Sector</span>
+                            <span class="dest-name">${item.destination}</span>
                         </div>
-                        <div class="metric" style="margin-top: 1rem;">
-                            <span class="label">Mass Allocation</span>
-                            <span class="weight-val">${item.weight_in_kg}</span> <span class="value">kg</span>
+                        <div class="mass-meter">
+                            <div class="mass-details">
+                                <div>
+                                    <span class="weight-text">${item.weight_in_kg.toLocaleString()}</span>
+                                    <span class="weight-unit">KG</span>
+                                </div>
+                                ${isEarth ? '<span class="earth-badge-text">🌍 DEEP_PIN</span>' : ''}
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-bar" style="width: ${percentage}%"></div>
+                            </div>
                         </div>
                     `;
-                    grid.appendChild(card);
+                    innerGrid.appendChild(card);
                 });
 
             } catch (err) {
-                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #ef4444;">Quantum Link Interrupted: ${err.message}</div>`;
+                grid.innerHTML = `<div style="text-align: center; color: var(--nova-amber); padding: 3rem; border: 1px dashed rgba(251,191,36,0.2); border-radius:16px;">▲ COSMIC ROUTE INTERRUPTED: ${err.message}</div>`;
             }
         }
 
-        // --- UX RULE: SYNC TRANSITION TIMEOUT ---
+        // --- UX RULE: 2.5 SECOND LOCKOUT TIMER DELTA ---
         function triggerQuantumSync() {
             const btn = document.getElementById("sync-btn");
+            playCosmicPing(550, 0.1);
+            addLiveLog("Command logged: Initiating master database sync sequence.");
             
-            // Lock control state parameters
             btn.disabled = true;
             btn.innerText = "Aligning quantum drives...";
 
-            // Maintain lock state for exactly 2500 milliseconds (2.5 seconds)
             setTimeout(async () => {
                 await fetchAndRenderManifest();
+                playCosmicPing(880, 0.15);
+                addLiveLog("Sync complete. Real-time telemetry feed updated successfully.");
                 btn.disabled = false;
-                btn.innerText = "Sync Data";
+                btn.innerText = "Sync Manifest";
             }, 2500);
         }
 
-        // Load data on initial link startup
         fetchAndRenderManifest();
     </script>
 </body>
