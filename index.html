@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intergalactic Cargo Triager Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-color: #161f30;
+            --accent-color: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --earth-color: #10b981;
+            --earth-glow: rgba(16, 185, 129, 0.3);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-shadow: 0 0 10px var(--accent-glow);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .controls {
+            margin-bottom: 2rem;
+        }
+
+        button {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--accent-color);
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        button:hover:not(:disabled) {
+            background-color: var(--accent-color);
+            box-shadow: 0 0 25px var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1max));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background-color: var(--panel-color);
+            border-left: 4px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        /* Business Rule 4 Style Override: Visual highlight for the pinned Earth container */
+        .card.earth-pinned {
+            border-left-color: var(--earth-color);
+            box-shadow: 0 4px 20px var(--earth-glow);
+            background: linear-gradient(135deg, var(--panel-color) 0%, #112920 100%);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .cargo-id {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #ffffff;
+        }
+
+        .date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .metric {
+            margin: 0.5rem 0;
+            font-size: 1.05rem;
+        }
+
+        .label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 0.1rem;
+        }
+
+        .value {
+            font-weight: 500;
+        }
+
+        .weight-val {
+            font-size: 1.4rem;
+            color: #ffffff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Intergalactic Cargo Triager</h1>
+        <div class="subtitle">Quantum Manifest Tracking Station // Operator: LABH</div>
+    </header>
+
+    <div class="controls">
+        <button id="sync-btn" onclick="triggerQuantumSync()">Sync Data</button>
+    </div>
+
+    <div class="grid-container" id="manifest-grid">
+        </div>
+
+    <script>
+        const API_URL = "/api/cargo";
+
+        async function fetchAndRenderManifest() {
+            const grid = document.getElementById("manifest-grid");
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("Manifest download down.");
+                const data = await response.json();
+
+                // --- BUSINESS RULE 4: SORTING LOGIC ---
+                data.sort((a, b) => {
+                    const destA = a.destination.toLowerCase().trim();
+                    const destB = b.destination.toLowerCase().trim();
+
+                    // If one of them is destined for Earth, systematically pin it lower
+                    if (destA === "earth" && destB !== "earth") return 1;
+                    if (destB === "earth" && destA !== "earth") return -1;
+
+                    // Otherwise, sort descending by absolute mass parameters (Heaviest -> Lightest)
+                    return b.weight_in_kg - a.weight_in_kg;
+                });
+
+                // Clear the container elements
+                grid.innerHTML = "";
+
+                // Generate and append cards
+                data.forEach(item => {
+                    const isEarth = item.destination.toLowerCase().trim() === "earth";
+                    const card = document.createElement("div");
+                    card.className = `card ${isEarth ? 'earth-pinned' : ''}`;
+
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span class="cargo-id">${item.cargo_id}</span>
+                            <span class="date">${item.date}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">Destination Vector</span>
+                            <span class="value">${item.destination} ${isEarth ? '🌍 (Pinned)' : ''}</span>
+                        </div>
+                        <div class="metric" style="margin-top: 1rem;">
+                            <span class="label">Mass Allocation</span>
+                            <span class="weight-val">${item.weight_in_kg}</span> <span class="value">kg</span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+            } catch (err) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #ef4444;">Quantum Link Interrupted: ${err.message}</div>`;
+            }
+        }
+
+        // --- UX RULE: SYNC TRANSITION TIMEOUT ---
+        function triggerQuantumSync() {
+            const btn = document.getElementById("sync-btn");
+            
+            // Lock control state parameters
+            btn.disabled = true;
+            btn.innerText = "Aligning quantum drives...";
+
+            // Maintain lock state for exactly 2500 milliseconds (2.5 seconds)
+            setTimeout(async () => {
+                await fetchAndRenderManifest();
+                btn.disabled = false;
+                btn.innerText = "Sync Data";
+            }, 2500);
+        }
+
+        // Load data on initial link startup
+        fetchAndRenderManifest();
+    </script>
+</body>
+</html>
